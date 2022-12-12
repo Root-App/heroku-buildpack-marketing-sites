@@ -3,15 +3,6 @@
 BUILD_DIR=$1
 ENV_DIR=$3
 
-STAGE="$(mktemp -d)"
-
-# Set up folder structure to account for expected location of modules
-mv "${BUILD_DIR}"/* "${STAGE}"
-rm -rf "${BUILD_DIR}"/*
-mkdir "$BUILD_DIR/"
-mv "${STAGE}"/* "${BUILD_DIR}/"
-mv "/tmp/modules" "${BUILD_DIR}/modules/"
-
 # Copy the Procfile to BUILD_DIR where Heroku expects it to be
 if [ ! -f "$ENV_DIR/APP_ROOT" ]; then
   echo "APP_ROOT not set. Aborting."
@@ -28,12 +19,21 @@ fi
 cp "$BUILD_DIR/$APP_ROOT/Procfile" $BUILD_DIR/
 
 # Remove unneeded files to cut down on Heroku slug size
-rm -rf "${BUILD_DIR}"/modules/integration*
+rm -rf "${BUILD_DIR}"/modules/integration/
+rm -rf "${BUILD_DIR}"/modules/integration-test/
 rm -rf "${BUILD_DIR}"/modules/test-utilities/
 rm -rf "${BUILD_DIR}"/modules/root-eslint-plugin/
 rm -rf "${BUILD_DIR}"/modules/Dockerfile/
 rm -rf "${BUILD_DIR}"/modules/breadcrumb-logger/
 rm -rf "${BUILD_DIR}"/modules/locales/
+rm -rf "${BUILD_DIR}"/modules/root.engineering/
 rm -rf "${BUILD_DIR}"/modules/root-jest-resolver/
 rm -rf "${BUILD_DIR}"/modules/root-js-test-bucket/
+rm -rf "${BUILD_DIR}"/modules/tooling-configuration/
 rm -rf "${BUILD_DIR}"/yarn.lock
+
+cd "${BUILD_DIR}"
+du -sh *
+echo "******"
+cd "${BUILD_DIR}"/modules
+du -sh *
